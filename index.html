@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatGPT</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="sidebar">
+        <h1>ChatGPT</h1>
+        <button>New Chat</button>
+        <input type="search" placeholder="Search">
+        <h4>Chat History</h4>
+        <div class="chathistory">
+            <div class="chatitem">What is your name?</div>
+            <div class="chatitem">1 + 1</div>
+            <div class="chatitem">Hello</div>
+        </div>
+    </div>
+
+    <div class="overlay"></div>
+
+    <div class="content">
+        <div class="nav">
+            <button class="sidebar-toggle">☰</button>
+            <span>ChatGPT</span>
+            <button class="theme-toggle">🌙</button>
+        </div>
+        <div class="chat-container">
+            <!-- Chat messages will be dynamically added here -->
+        </div>
+        <div class="input">
+            <textarea placeholder="Ask anything..." rows="1"></textarea>
+            <button>Send</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
