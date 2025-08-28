@@ -1,125 +1,233 @@
 document.addEventListener("DOMContentLoaded", () => {
+    // --- DOM SELECTORS ---
     const sidebarToggle = document.querySelector(".sidebar-toggle");
     const themeToggle = document.querySelector(".theme-toggle");
+    const newChatBtn = document.querySelector(".sidebar > button");
+    const searchInput = document.querySelector(".sidebar > input[type='search']");
+    const historyContainer = document.querySelector(".chathistory");
+    const chatContainer = document.querySelector(".chat-container");
+    const chatInput = document.querySelector(".input textarea");
+    const sendButton = document.querySelector(".input button");
     const sidebar = document.querySelector(".sidebar");
     const overlay = document.querySelector(".overlay");
     const content = document.querySelector(".content");
     const body = document.body;
 
-    // --- CHATBOT API LOGIC ---
-    const chatContainer = document.querySelector(".chat-container");
-    const chatInput = document.querySelector(".input textarea");
-    const sendButton = document.querySelector(".input button");
+    // --- API CONFIG ---
+    const API_KEY = "AIzaSyDbU3nfGvL88AbZZT7l5GtCZnS5RBBh6eE"; // <-- IMPORTANT: PASTE YOUR GEMINI API KEY HERE
+    const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:streamGenerateContent?alt=sse&key=${API_KEY}`;
 
-    const API_KEY = "YOUR_APIAIzaSyBcFtkw2fZWMPQKhvUuCrpu1Qc_4Qq3dIQ_KEY"; // <-- IMPORTANT: PASTE YOUR GEMINI API KEY HERE
-    const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:streamGenerateContent?alt=sse&key=AIzaSyBcFtkw2fZWMPQKhvUuCrpu1Qc_4Qq3dIQ`;
+    // --- APP STATE & LOCAL STORAGE ---
+    let appState = {
+        currentChatId: null,
+        chats: [],
+    };
 
-    let conversationHistory = []; // Array to store conversation context
+    const saveState = () => {
+        localStorage.setItem("chatgpt-clone-state", JSON.stringify(appState));
+    };
 
+    const loadState = () => {
+        const savedState = localStorage.getItem("chatgpt-clone-state");
+        if (savedState) {
+            appState = JSON.parse(savedState);
+        }
+    };
+
+    // --- ENHANCED MATH RENDERING FUNCTION ---
+    const renderMathInMessage = (element) => {
+        // Wait for KaTeX to be fully loaded
+        if (window.renderMathInElement) {
+            try {
+                window.renderMathInElement(element, {
+                    delimiters: [
+                        {left: '$$', right: '$$', display: true},
+                        {left: '$', right: '$', display: false},
+                        {left: '\\(', right: '\\)', display: false},
+                        {left: '\\[', right: '\\]', display: true}
+                    ],
+                    throwOnError: false,
+                    ignoredTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+                    ignoredClasses: ['katex-html']
+                });
+            } catch (error) {
+                console.warn('KaTeX rendering error:', error);
+            }
+        }
+    };
+
+    // --- ENHANCED MESSAGE CREATION WITH LATEX SUPPORT ---
     const createChatMessageElement = (message, sender) => {
         const messageDiv = document.createElement("div");
         messageDiv.classList.add("chat-message", sender);
-
         const avatar = document.createElement("div");
         avatar.classList.add("avatar");
-        // Avatar text removed as requested
-
         const messageContent = document.createElement("div");
         messageContent.classList.add("message");
+        
+        // Set the text content and render math immediately
         messageContent.textContent = message;
+        
+        // Render math for both user and AI messages
+        renderMathInMessage(messageContent);
 
         if (sender === "ai") {
             messageDiv.appendChild(avatar);
             messageDiv.appendChild(messageContent);
-        } else { // user
+        } else {
             messageDiv.appendChild(messageContent);
             messageDiv.appendChild(avatar);
         }
-
         return messageDiv;
+    };
+
+    // --- UI RENDERING ---
+    const renderChatHistory = () => {
+        historyContainer.innerHTML = "";
+        appState.chats.forEach(chat => {
+            const chatItem = document.createElement("div");
+            chatItem.classList.add("chatitem");
+            chatItem.dataset.chatId = chat.id;
+
+            const titleSpan = document.createElement("span");
+            titleSpan.textContent = chat.title;
+            chatItem.appendChild(titleSpan);
+
+            const deleteBtn = document.createElement("button");
+            deleteBtn.classList.add("delete-chat-btn");
+            deleteBtn.innerHTML = "&times;";
+            chatItem.appendChild(deleteBtn);
+
+            if (chat.id === appState.currentChatId) {
+                chatItem.classList.add("active");
+            }
+            historyContainer.appendChild(chatItem);
+        });
+    };
+
+    const renderActiveChat = () => {
+        chatContainer.innerHTML = "";
+        const activeChat = appState.chats.find(c => c.id === appState.currentChatId);
+        if (activeChat) {
+            activeChat.messages.forEach(msg => {
+                const role = msg.role === 'model' ? 'ai' : 'user';
+                const messageElement = createChatMessageElement(msg.parts[0].text, role);
+                chatContainer.appendChild(messageElement);
+            });
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+    };
+
+    // --- CHAT FUNCTIONALITY ---
+    const deleteChat = (chatIdToDelete) => {
+        const wasActive = appState.currentChatId === chatIdToDelete;
+
+        // Filter out the chat to be deleted
+        appState.chats = appState.chats.filter(chat => chat.id !== chatIdToDelete);
+
+        if (wasActive) {
+            // If the active chat was deleted, create a new one and switch to it.
+            createNewChat();
+        } else {
+            // If a background chat was deleted, just save the state and update the history list.
+            saveState();
+            renderChatHistory();
+        }
+    };
+
+    const createNewChat = () => {
+        const newChatId = `chat_${Date.now()}`;
+        appState.chats.unshift({
+            id: newChatId,
+            title: "New Chat",
+            messages: [],
+        });
+        appState.currentChatId = newChatId;
+        saveState();
+        renderChatHistory();
+        renderActiveChat();
     };
 
     const handleChat = async () => {
         const userMessage = chatInput.value.trim();
-        if (!userMessage) return;
+        if (!userMessage || !appState.currentChatId) return;
 
-        // Reset textarea height and clear input
+        const activeChat = appState.chats.find(c => c.id === appState.currentChatId);
+        
+        // Check if the title still needs to be set from its default
+        const needsTitle = activeChat.title === "New Chat";
+
+        activeChat.messages.push({ role: 'user', parts: [{ text: userMessage }] });
+        
+        // Create and add user message with LaTeX support
+        const userMessageElement = createChatMessageElement(userMessage, "user");
+        chatContainer.appendChild(userMessageElement);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+        
         chatInput.value = "";
         chatInput.style.height = "auto";
         sendButton.disabled = true;
 
-        // Display user's message
-        chatContainer.appendChild(createChatMessageElement(userMessage, "user"));
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-
-        // Add user message to history for context
-        conversationHistory.push({ role: 'user', parts: [{ text: userMessage }] });
-
-        // --- CONTEXT LIMIT LOGIC ---
-        const maxMessages = 20; // Keeps the last 10 user/AI message pairs
-        if (conversationHistory.length > maxMessages) {
-            // Slice the array to keep only the last `maxMessages` items
-            conversationHistory = conversationHistory.slice(conversationHistory.length - maxMessages);
-        }
-        // --- END CONTEXT LIMIT LOGIC ---
-
-        // Create AI message bubble to be filled by the stream
+        // Create AI message element for streaming
         const aiMessageDiv = createChatMessageElement("", "ai");
         chatContainer.appendChild(aiMessageDiv);
         const aiMessageContent = aiMessageDiv.querySelector('.message');
         aiMessageContent.classList.add('streaming');
 
         try {
+            const conversationHistory = activeChat.messages.slice(-20);
             const response = await fetch(API_URL, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ contents: conversationHistory }), // Send full history
+                body: JSON.stringify({ contents: conversationHistory }),
             });
-
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`API Error: ${response.status} - ${errorText}`);
-            }
 
             const reader = response.body.getReader();
             const decoder = new TextDecoder();
-            let buffer = "";
-            let fullAiResponse = ""; // To store the complete AI response
+            let fullAiResponse = "";
 
             while (true) {
                 const { done, value } = await reader.read();
                 if (done) break;
-
-                buffer += decoder.decode(value, { stream: true });
-                const lines = buffer.split('\n');
-                buffer = lines.pop();
-
+                const chunk = decoder.decode(value, { stream: true });
+                const lines = chunk.split('\n');
                 for (const line of lines) {
                     if (line.startsWith('data: ')) {
                         const jsonStr = line.substring(6).trim();
                         if (jsonStr) {
                             try {
-                                const chunk = JSON.parse(jsonStr);
-                                const textPart = chunk.candidates?.[0]?.content?.parts?.[0]?.text;
+                                const parsed = JSON.parse(jsonStr);
+                                const textPart = parsed.candidates?.[0]?.content?.parts?.[0]?.text;
                                 if (textPart) {
-                                    fullAiResponse += textPart; // Append to full response
-                                    aiMessageContent.textContent += textPart;
+                                    fullAiResponse += textPart;
+                                    // During streaming, show raw text for responsiveness
+                                    aiMessageContent.textContent = fullAiResponse;
                                     chatContainer.scrollTop = chatContainer.scrollHeight;
                                 }
-                            } catch (e) {
-                                console.warn("Could not parse JSON chunk:", jsonStr);
-                            }
+                            } catch (e) { /* Ignore parsing errors */ }
                         }
                     }
                 }
             }
-            // Add complete AI response to history for context
-            conversationHistory.push({ role: 'model', parts: [{ text: fullAiResponse }] });
+
+            activeChat.messages.push({ role: 'model', parts: [{ text: fullAiResponse }] });
+
+            // Set title based on the FIRST user message in the chat history
+            if (needsTitle) {
+                const firstUserMessage = activeChat.messages.find(m => m.role === 'user');
+                if (firstUserMessage) {
+                    const titleText = firstUserMessage.parts[0].text;
+                    activeChat.title = titleText.split(' ').slice(0, 5).join(' ') + '...';
+                    renderChatHistory();
+                }
+            }
+            saveState();
 
         } catch (error) {
-            console.error("Streaming Error:", error);
-            aiMessageContent.textContent = `Error: ${error.message}. Please check your API key and network connection.`;
+            aiMessageContent.textContent = `Error: ${error.message}`;
         } finally {
+            // After streaming is done, render the final message with math
+            renderMathInMessage(aiMessageContent);
             aiMessageContent.classList.remove('streaming');
             sendButton.disabled = false;
             chatInput.focus();
@@ -127,24 +235,50 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     // --- EVENT LISTENERS ---
-    sendButton.addEventListener("click", handleChat);
+    newChatBtn.addEventListener("click", createNewChat);
 
+    historyContainer.addEventListener("click", (e) => {
+        const target = e.target;
+        if (target.classList.contains("delete-chat-btn")) {
+            e.stopPropagation();
+            const chatItem = target.closest(".chatitem");
+            const chatId = chatItem.dataset.chatId;
+            if (confirm("Are you sure you want to delete this chat?")) {
+                deleteChat(chatId);
+            }
+        } else if (target.closest(".chatitem")) {
+            const chatItem = target.closest(".chatitem");
+            const chatId = chatItem.dataset.chatId;
+            if (chatId !== appState.currentChatId) {
+                appState.currentChatId = chatId;
+                saveState();
+                renderChatHistory();
+                renderActiveChat();
+            }
+        }
+    });
+
+    searchInput.addEventListener("input", (e) => {
+        const searchTerm = e.target.value.toLowerCase();
+        document.querySelectorAll(".chathistory .chatitem").forEach(item => {
+            const title = item.textContent.toLowerCase();
+            item.style.display = title.includes(searchTerm) ? "" : "none";
+        });
+    });
+
+    sendButton.addEventListener("click", handleChat);
     chatInput.addEventListener("keydown", (e) => {
-        // Submit on Enter, but allow new line with Shift+Enter
         if (e.key === "Enter" && !e.shiftKey) {
             e.preventDefault();
             handleChat();
         }
     });
-
     chatInput.addEventListener("input", () => {
-        // Auto-resize textarea
         chatInput.style.height = "auto";
         chatInput.style.height = `${chatInput.scrollHeight}px`;
     });
 
-
-    // --- THEME TOGGLE LOGIC ---
+    // --- THEME & SIDEBAR LOGIC ---
     const applyTheme = (theme) => {
         if (theme === "dark") {
             body.classList.add("dark-theme");
@@ -161,45 +295,60 @@ document.addEventListener("DOMContentLoaded", () => {
         applyTheme(currentTheme);
     });
 
-    // Load saved theme
-    const savedTheme = localStorage.getItem("theme") || "light";
-    applyTheme(savedTheme);
-
-    // --- SIDEBAR LOGIC ---
     const isMobile = () => window.innerWidth <= 768;
-
     const toggleSidebar = () => {
         if (isMobile()) {
-            // Mobile behavior: Toggle sidebar and overlay
             sidebar.classList.toggle("active");
             overlay.classList.toggle("active");
         } else {
-            // Desktop behavior: Collapse sidebar and expand content
             sidebar.classList.toggle("collapsed");
             content.classList.toggle("full-width");
         }
     };
 
-    // Set initial state on load and on resize
     const setInitialState = () => {
         if (isMobile()) {
-            sidebar.classList.add("collapsed"); // Use 'collapsed' to hide
             sidebar.classList.remove("active");
-            content.classList.remove("full-width");
             overlay.classList.remove("active");
+            content.classList.remove("full-width");
         } else {
             sidebar.classList.remove("active");
-            // Keep desktop collapsed state if it was set
-            if (!sidebar.classList.contains("collapsed")) {
+            overlay.classList.remove("active");
+            if (sidebar.classList.contains("collapsed")) {
+                content.classList.add("full-width");
+            } else {
                 content.classList.remove("full-width");
             }
-            overlay.classList.remove("active");
         }
     };
 
     sidebarToggle.addEventListener("click", toggleSidebar);
-    overlay.addEventListener("click", toggleSidebar); // This will only trigger on mobile
-
+    overlay.addEventListener("click", toggleSidebar);
     window.addEventListener("resize", setInitialState);
-    setInitialState(); // Run on page load
+
+    // --- INITIALIZATION ---
+    loadState();
+    if (!appState.currentChatId || !appState.chats.find(c => c.id === appState.currentChatId)) {
+        if (appState.chats.length > 0) {
+            appState.currentChatId = appState.chats[0].id;
+        } else {
+            createNewChat();
+        }
+    }
+    applyTheme(localStorage.getItem("theme") || "light");
+    setInitialState();
+    renderChatHistory();
+
+    // Enhanced initialization to ensure KaTeX is ready
+    const initializeChat = () => {
+        if (window.renderMathInElement) {
+            renderActiveChat();
+        } else {
+            // If KaTeX isn't ready yet, wait a bit longer
+            setTimeout(initializeChat, 100);
+        }
+    };
+
+    // Start initialization
+    initializeChat();
 });

@@ -121,6 +121,9 @@ body {
 
 .chathistory {
     margin-top: 10px;
+    overflow-y: auto;
+    flex-grow: 1; /* Allow this container to fill available space */
+    min-height: 0; /* Prevents flexbox overflow issues */
 }
 
 .chatitem {
@@ -131,6 +134,47 @@ body {
     color: var(--text-secondary);
     cursor: pointer;
     font-size: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.chatitem span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-right: 10px; /* Add some space between text and button */
+}
+
+.chatitem.active {
+    background-color: var(--bg-sidebar-hover);
+}
+
+.delete-chat-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 20px; /* Make the 'x' a bit larger */
+    line-height: 1;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0; /* Prevent button from shrinking */
+    opacity: 0; /* Hidden by default */
+    transition: opacity 0.2s, background-color 0.2s;
+}
+
+.chatitem:hover .delete-chat-btn {
+    opacity: 1; /* Show on hover */
+}
+
+.delete-chat-btn:hover {
+    background-color: var(--bg-chatitem-hover); /* Add hover effect to the button itself */
 }
 
 .chatitem:hover {
@@ -227,6 +271,11 @@ body {
     border-radius: 20px;
     line-height: 1.4;
     font-size: 15px;
+}
+
+/* KaTeX color fix for themes */
+.katex {
+    color: var(--text-primary);
 }
 
 /* AI Message Styling */
