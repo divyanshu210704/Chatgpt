@@ -1,0 +1,3 @@
+# filepath: d:\Programming\Web Development\Chatgpt\netlify.toml
+[functions]
+  directory = "netlify/functions"

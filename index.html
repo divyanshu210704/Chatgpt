@@ -2,47 +2,92 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ChatGPT</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ChatGPT Clone</title>
+
+    <!-- A small inline SVG favicon to prevent 404 errors in the console -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='14' font-size='14'>💬</text></svg>">
+
     <link rel="stylesheet" href="style.css">
-    <!-- KaTeX CSS -->
+
+    <!-- KaTeX CSS for mathematical rendering -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
 </head>
 
 <body>
     <div class="sidebar">
         <h1>ChatGPT</h1>
-        <button>New Chat</button>
-        <input type="search" placeholder="Search">
-        <h4>Chat History</h4>
-        <div class="chathistory">
-            <!-- Chat history items will be dynamically added here -->
+        <button class="new-chat">New Chat</button>
+        <input type="search" placeholder="Search" />
+        <div class="history-header">
+            <h4>Chat History</h4>
+            <button id="clear-history-btn" title="Clear all chats">Clear</button>
         </div>
+        <div class="chathistory" aria-live="polite"></div>
     </div>
 
-    <div class="overlay"></div>
+    <div class="overlay" aria-hidden="true"></div>
 
     <div class="content">
         <div class="nav">
-            <button class="sidebar-toggle">☰</button>
+            <button class="sidebar-toggle" aria-label="Toggle sidebar">☰</button>
             <span>ChatGPT</span>
-            <button class="theme-toggle">🌙</button>
+            <button class="theme-toggle" aria-label="Toggle theme">🌙</button>
         </div>
-        <div class="chat-container">
-            <!-- Chat messages will be dynamically added here -->
+
+        <!-- Welcome Screen for empty chats -->
+        <div class="welcome-screen">
+            <div class="welcome-content">
+                <h1>ChatGPT Clone</h1>
+                <p>Start a conversation by asking anything or trying a suggestion below.</p>
+                <div class="suggestions">
+                    <button class="suggestion-btn" data-prompt="Solve $E=mc^2$ for m">"Solve $E=mc^2$ for m"</button>
+                    <button class="suggestion-btn" data-prompt="Write a python function to reverse a string">"Write a python function to reverse a string"</button>
+                    <button class="suggestion-btn" data-prompt="Tell me a science joke">"Tell me a science joke"</button>
+                    <button class="suggestion-btn" data-prompt="Explain what a black hole is">"Explain what a black hole is"</button>
+                </div>
+            </div>
         </div>
+
+        <div class="chat-container" role="log" aria-live="polite"></div>
+
         <div class="input">
             <textarea placeholder="Ask anything..." rows="1"></textarea>
-            <button>Send</button>
+            <button class="send-btn" aria-label="Send message">Send</button>
         </div>
     </div>
 
-    <!-- KaTeX JS -->
+    <!-- KaTeX JS libraries. 'defer' ensures they load before our main script runs. -->
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
-    <!-- KaTeX Auto-render extension -->
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+
     <script defer src="script.js"></script>
+
+    <!-- Custom Delete Confirmation Modal -->
+    <div id="delete-modal" class="modal-container">
+        <div class="modal-content">
+            <h2>Delete Chat</h2>
+            <p>Are you sure you want to delete this chat? This action cannot be undone.</p>
+            <div class="modal-buttons">
+                <button id="cancel-delete-btn" class="modal-btn-secondary">Cancel</button>
+                <button id="confirm-delete-btn" class="modal-btn-danger">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Clearing All History -->
+    <div id="clear-all-modal" class="modal-container">
+        <div class="modal-content">
+            <h2>Clear All History</h2>
+            <p>Are you sure you want to delete all chats? This action is permanent.</p>
+            <div class="modal-buttons">
+                <button id="cancel-clear-all-btn" class="modal-btn-secondary">Cancel</button>
+                <button id="confirm-clear-all-btn" class="modal-btn-danger">Clear All</button>
+            </div>
+        </div>
+    </div>
+
 </body>
 
 </html>

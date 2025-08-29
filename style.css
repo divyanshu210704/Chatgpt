@@ -250,7 +250,6 @@ body {
     display: flex;
     align-items: flex-end; /* Align items to the bottom */
     margin-bottom: 10px;
-    max-width: 75%;
 }
 
 .chat-message .avatar {
@@ -281,13 +280,13 @@ body {
 /* AI Message Styling */
 .chat-message.ai {
     align-self: flex-start;
+    max-width: 100%; /* AI messages can be wider */
 }
 
 
 .chat-message.ai .message {
     background-color: var(--ai-message-bg);
     color: var(--text-primary);
-    border-top-left-radius: 5px;
 }
 
 /* Blinking cursor for streaming response */
@@ -309,6 +308,7 @@ body {
 .chat-message.user {
     align-self: flex-end;
     flex-direction: row-reverse; /* Reverse order for user */
+    max-width: 85%; /* User messages are slightly narrower */
 }
 
 .chat-message.user .message {
@@ -397,8 +397,183 @@ body {
         margin-left: 0;
     }
 
-    .nav span {
-        margin-left: 0; /* Remove offset on mobile */
-        text-align: left; /* Align left on mobile */
+    .nav {
+        position: relative; /* Added for centering child */
     }
+
+    .nav span {
+        position: absolute; /* Added for centering */
+        left: 50%; /* Added for centering */
+        transform: translateX(-50%); /* Added for centering */
+    }
+}
+
+/* --- ADD THIS NEW CODE FOR THE MODAL --- */
+.modal-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease-in-out;
+}
+
+.modal-container.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.modal-content {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    padding: 25px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.modal-content h2 {
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+.modal-content p {
+    margin-bottom: 25px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.modal-buttons button {
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    min-width: 100px;
+}
+
+.modal-btn-secondary {
+    background-color: var(--bg-sidebar-item);
+    color: var(--text-primary);
+}
+
+.modal-btn-danger {
+    background-color: #dc3545;
+    color: #ffffff;
+}
+
+/* --- ADD THIS NEW CODE FOR THE CLEAR HISTORY BUTTON --- */
+.history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+}
+
+#clear-history-btn {
+    background: none;
+    border: 1px solid var(--border-input);
+    color: var(--text-secondary);
+    font-size: 12px;
+    padding: 2px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+#clear-history-btn:hover {
+    background-color: var(--bg-sidebar-hover);
+}
+
+/* --- ADD THIS NEW CODE FOR THE WELCOME SCREEN --- */
+.welcome-screen {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+}
+
+.welcome-content h1 {
+    font-size: 2.5rem;
+    color: var(--text-primary);
+    margin-bottom: 10px;
+}
+
+.welcome-content p {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    margin-bottom: 30px;
+}
+
+.suggestions {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.suggestion-btn {
+    background-color: var(--bg-input);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 15px;
+    border-radius: 10px;
+    cursor: pointer;
+    text-align: left;
+    font-size: 0.9rem;
+    transition: background-color 0.2s;
+}
+
+.suggestion-btn:hover {
+    background-color: var(--bg-sidebar-hover);
+}
+
+@media (max-width: 600px) {
+    .suggestions {
+        grid-template-columns: 1fr;
+    }
+}
+.chatitem.processing {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.chatitem .processing {
+    color: #007bff;
+    animation: pulse 1s infinite;
+    margin-left: 5px;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.send-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}.empty-history-message {
+    padding: 20px;
+    text-align: center;
+    color: var(--text-secondary, #666);
+    font-style: italic;
+    font-size: 0.9rem;
 }
