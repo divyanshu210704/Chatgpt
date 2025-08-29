@@ -6,13 +6,10 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>ChatGPT Clone</title>
 
-    <!-- A small inline SVG favicon to prevent 404 errors in the console -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='14' font-size='14'>💬</text></svg>">
-
     <link rel="stylesheet" href="style.css">
-
-    <!-- KaTeX CSS for mathematical rendering -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
 </head>
 
 <body>
@@ -36,7 +33,6 @@
             <button class="theme-toggle" aria-label="Toggle theme">🌙</button>
         </div>
 
-        <!-- Welcome Screen for empty chats -->
         <div class="welcome-screen">
             <div class="welcome-content">
                 <h1>ChatGPT Clone</h1>
@@ -45,7 +41,7 @@
                     <button class="suggestion-btn" data-prompt="Solve $E=mc^2$ for m">"Solve $E=mc^2$ for m"</button>
                     <button class="suggestion-btn" data-prompt="Write a python function to reverse a string">"Write a python function to reverse a string"</button>
                     <button class="suggestion-btn" data-prompt="Tell me a science joke">"Tell me a science joke"</button>
-                    <button class="suggestion-btn" data-prompt="Explain what a black hole is">"Explain what a black hole is"</button>
+                    <button class="suggestion-btn" data-prompt='Provide a JSON example for a user profile.'>"Provide a JSON example for a user profile."</button>
                 </div>
             </div>
         </div>
@@ -58,13 +54,6 @@
         </div>
     </div>
 
-    <!-- KaTeX JS libraries. 'defer' ensures they load before our main script runs. -->
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
-
-    <script defer src="script.js"></script>
-
-    <!-- Custom Delete Confirmation Modal -->
     <div id="delete-modal" class="modal-container">
         <div class="modal-content">
             <h2>Delete Chat</h2>
@@ -76,7 +65,6 @@
         </div>
     </div>
 
-    <!-- Modal for Clearing All History -->
     <div id="clear-all-modal" class="modal-container">
         <div class="modal-content">
             <h2>Clear All History</h2>
@@ -88,6 +76,16 @@
         </div>
     </div>
 
-</body>
+    <!-- KaTeX JS libraries -->
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+    
+    <!-- UPDATED: Prism.js Core & Autoloader for syntax highlighting multiple languages -->
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
 
+    <!-- Main application script -->
+    <script defer src="script.js"></script>
+
+</body>
 </html>

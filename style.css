@@ -17,6 +17,8 @@
     --theme-btn-color: #212121;
     --nav-text-color: #212121;
     --user-message-text: #000000;
+    --code-bg-color: #2d2d2d;
+    /* From prism-tomorrow theme */
 }
 
 body.dark-theme {
@@ -39,8 +41,12 @@ body.dark-theme {
     --theme-btn-color: #e0e0e0;
     --nav-text-color: #e0e0e0;
     --user-message-text: #ffffff;
+    --code-bg-color: #2d2d2d;
 }
 
+/* --- (Keep all of your other existing CSS rules from your file) --- */
+
+/* ... body, .sidebar, .content, .chat-container, etc. ... */
 * {
     margin: 0;
     padding: 0;
@@ -52,16 +58,18 @@ body {
     display: flex;
     font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     background-color: var(--bg-secondary);
-    overflow: hidden; /* Prevent body scroll */
+    overflow: hidden;
 }
 
-/* Sidebar */
+
+
+
 .sidebar {
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
     padding: 10px;
-    width: 260px; /* Use fixed width for consistency */
+    width: 260px;
     background-color: var(--bg-sidebar);
     color: var(--text-secondary);
     position: fixed;
@@ -74,18 +82,17 @@ body {
     border-right: 1px solid var(--border-input);
 }
 
-/* This class will now universally mean "the sidebar is hidden" */
 .sidebar.collapsed {
     transform: translateX(-100%);
 }
 
-.sidebar > h1 {
+.sidebar>h1 {
     font-size: 24px;
     font-weight: 600;
     margin-bottom: 20px;
 }
 
-.sidebar > button {
+.sidebar>button {
     border-radius: 10px;
     padding: 10px;
     border: none;
@@ -98,7 +105,7 @@ body {
     font-size: 14px;
 }
 
-.sidebar > input {
+.sidebar>input {
     border-radius: 10px;
     padding: 10px;
     border: none;
@@ -109,11 +116,11 @@ body {
     font-size: 14px;
 }
 
-.sidebar > button:hover {
+.sidebar>button:hover {
     background: var(--bg-sidebar-hover);
 }
 
-.sidebar > h4 {
+.sidebar>h4 {
     font-size: 16px;
     font-weight: 600;
     color: var(--text-sidebar-heading);
@@ -122,8 +129,8 @@ body {
 .chathistory {
     margin-top: 10px;
     overflow-y: auto;
-    flex-grow: 1; /* Allow this container to fill available space */
-    min-height: 0; /* Prevents flexbox overflow issues */
+    flex-grow: 1;
+    min-height: 0;
 }
 
 .chatitem {
@@ -143,7 +150,7 @@ body {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    padding-right: 10px; /* Add some space between text and button */
+    padding-right: 10px;
 }
 
 .chatitem.active {
@@ -155,7 +162,7 @@ body {
     border: none;
     color: var(--text-secondary);
     cursor: pointer;
-    font-size: 20px; /* Make the 'x' a bit larger */
+    font-size: 20px;
     line-height: 1;
     padding: 0;
     width: 24px;
@@ -164,24 +171,23 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-shrink: 0; /* Prevent button from shrinking */
-    opacity: 0; /* Hidden by default */
+    flex-shrink: 0;
+    opacity: 0;
     transition: opacity 0.2s, background-color 0.2s;
 }
 
 .chatitem:hover .delete-chat-btn {
-    opacity: 1; /* Show on hover */
+    opacity: 1;
 }
 
 .delete-chat-btn:hover {
-    background-color: var(--bg-chatitem-hover); /* Add hover effect to the button itself */
+    background-color: var(--bg-chatitem-hover);
 }
 
 .chatitem:hover {
     background: var(--bg-chatitem-hover);
 }
 
-/* Overlay for mobile sidebar */
 .overlay {
     display: none;
     position: fixed;
@@ -197,72 +203,56 @@ body {
     display: block;
 }
 
-/* Content */
 .content {
     display: flex;
     flex-direction: column;
     width: 100%;
-    margin-left: 260px; /* Match sidebar width */
+    margin-left: 260px;
     background: var(--bg-primary);
     transition: margin-left 0.3s ease-in-out;
     height: 100dvh;
 }
 
-/* When sidebar is collapsed, content should take full width */
 .content.full-width {
     margin-left: 0;
 }
 
 .nav {
     box-sizing: border-box;
-    height: 60px; /* Standard nav height */
+    height: 60px;
     display: flex;
     align-items: center;
-    justify-content: space-between; /* Changed for theme button */
+    justify-content: space-between;
     padding: 0 20px;
     font-size: 20px;
     font-weight: 600;
-    background: var(--bg-sidebar); /* Use sidebar bg for consistency */
+    background: var(--bg-sidebar);
     color: var(--nav-text-color);
     flex-shrink: 0;
-    position: relative; /* Add relative positioning */
+    position: relative;
     border-bottom: 1px solid var(--border-input);
 }
 
 .nav span {
     flex-grow: 1;
     text-align: center;
-    /* No offset needed with space-between */
 }
 
-/* --- CHAT UI REDESIGN --- */
 .chat-container {
-    flex-grow: 1; /* Allow container to fill space */
+    flex-grow: 1;
     padding: 20px;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: 5px; /* Reduced gap for tighter message packing */
+    gap: 5px;
     background-color: var(--bg-primary);
 }
 
 .chat-message {
     display: flex;
-    align-items: flex-end; /* Align items to the bottom */
+    align-items: flex-end;
     margin-bottom: 10px;
-}
-
-.chat-message .avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--avatar-text);
-    font-weight: bold;
-    font-size: 14px;
-    flex-shrink: 0;
+    max-width: 100%;
 }
 
 .chat-message .message {
@@ -270,26 +260,22 @@ body {
     border-radius: 20px;
     line-height: 1.4;
     font-size: 15px;
+    word-wrap: break-word;
 }
 
-/* KaTeX color fix for themes */
 .katex {
     color: var(--text-primary);
 }
 
-/* AI Message Styling */
 .chat-message.ai {
     align-self: flex-start;
-    max-width: 100%; /* AI messages can be wider */
 }
-
 
 .chat-message.ai .message {
     background-color: var(--ai-message-bg);
     color: var(--text-primary);
 }
 
-/* Blinking cursor for streaming response */
 .chat-message.ai .message.streaming::after {
     content: '▋';
     animation: blink 1s step-end infinite;
@@ -304,11 +290,10 @@ body {
     }
 }
 
-/* User Message Styling */
 .chat-message.user {
     align-self: flex-end;
-    flex-direction: row-reverse; /* Reverse order for user */
-    max-width: 85%; /* User messages are slightly narrower */
+    flex-direction: row-reverse;
+    max-width: 85%;
 }
 
 .chat-message.user .message {
@@ -316,16 +301,40 @@ body {
     color: var(--user-message-text);
     border-top-right-radius: 5px;
 }
+/* --- Find this existing rule in your CSS --- */
+.chat-message .message {
+    padding: 12px 18px;
+    border-radius: 20px;
+    line-height: 1.4;
+    font-size: 15px;
+    word-wrap: break-word;
+    
+    /* FIX 1: Add these two lines for robust wrapping */
+    max-width: 100%;
+    overflow-wrap: break-word; 
+}
 
-/* --- END CHAT UI REDESIGN --- */
 
+/* --- Find this existing rule in your CSS --- */
+.code-block pre {
+    margin: 0 !important;
+    /* Override prism defaults */
+    padding: 12px !important;
+    /* Override prism defaults */
+    overflow-x: auto;
+    background: transparent !important;
+    /* Let parent div control background */
+    
+    /* FIX 2: Explicitly add this (your code might already have it, but ensure it's there) */
+    overflow-x: auto;
+}
 .input {
     display: flex;
-    align-items: flex-end; /* Align to bottom for textarea growth */
+    align-items: flex-end;
     padding: 10px 20px;
     gap: 10px;
     background: var(--bg-input);
-    min-height: 60px; /* Use min-height */
+    min-height: 60px;
     flex-shrink: 0;
     border-top: 1px solid var(--border-input);
 }
@@ -339,15 +348,15 @@ body {
     font-size: 15px;
     background-color: var(--bg-primary);
     color: var(--text-primary);
-    resize: none; /* Disable manual resizing */
-    overflow-y: auto; /* Enable scroll when max-height is reached */
-    max-height: 125px; /* Approx 6 lines */
+    resize: none;
+    overflow-y: auto;
+    max-height: 125px;
     line-height: 1.5;
     font-family: inherit;
-    scrollbar-width: none; /* Firefox */
+    scrollbar-width: none;
 }
 
-.input > button {
+.input>button {
     padding: 10px 20px;
     border-radius: 20px;
     border: none;
@@ -357,11 +366,10 @@ body {
     font-size: 14px;
 }
 
-.input > button:hover {
+.input>button:hover {
     background: var(--bg-send-btn-hover);
 }
 
-/* Sidebar Toggle Button */
 .sidebar-toggle {
     background: none;
     color: var(--theme-btn-color);
@@ -369,10 +377,9 @@ body {
     padding: 0;
     cursor: pointer;
     font-size: 24px;
-    z-index: 1; /* Lower z-index to stay within the nav bar */
+    z-index: 1;
 }
 
-/* Theme Toggle Button */
 .theme-toggle {
     background: none;
     border: none;
@@ -381,14 +388,12 @@ body {
     font-size: 22px;
 }
 
-/* Media Query for Mobile & Tablet */
 @media (max-width: 768px) {
     .sidebar {
-        transform: translateX(-100%); /* Hidden by default on mobile */
+        transform: translateX(-100%);
         border-right: none;
     }
 
-    /* 'active' is now only for showing the sidebar on mobile */
     .sidebar.active {
         transform: translateX(0);
     }
@@ -398,17 +403,16 @@ body {
     }
 
     .nav {
-        position: relative; /* Added for centering child */
+        position: relative;
     }
 
     .nav span {
-        position: absolute; /* Added for centering */
-        left: 50%; /* Added for centering */
-        transform: translateX(-50%); /* Added for centering */
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
     }
 }
 
-/* --- ADD THIS NEW CODE FOR THE MODAL --- */
 .modal-container {
     position: fixed;
     top: 0;
@@ -438,7 +442,7 @@ body {
     width: 90%;
     max-width: 400px;
     text-align: center;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
 
 .modal-content h2 {
@@ -478,7 +482,6 @@ body {
     color: #ffffff;
 }
 
-/* --- ADD THIS NEW CODE FOR THE CLEAR HISTORY BUTTON --- */
 .history-header {
     display: flex;
     justify-content: space-between;
@@ -500,7 +503,6 @@ body {
     background-color: var(--bg-sidebar-hover);
 }
 
-/* --- ADD THIS NEW CODE FOR THE WELCOME SCREEN --- */
 .welcome-screen {
     flex-grow: 1;
     display: flex;
@@ -551,29 +553,94 @@ body {
         grid-template-columns: 1fr;
     }
 }
-.chatitem.processing {
-    opacity: 0.7;
-    pointer-events: none;
-}
-
-.chatitem .processing {
-    color: #007bff;
-    animation: pulse 1s infinite;
-    margin-left: 5px;
-}
-
-@keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
-}
 
 .send-btn:disabled {
     opacity: 0.6;
     cursor: not-allowed;
-}.empty-history-message {
+}
+
+.empty-history-message {
     padding: 20px;
     text-align: center;
     color: var(--text-secondary, #666);
     font-style: italic;
     font-size: 0.9rem;
+}
+
+
+/* --- NEW & UPDATED CODE BLOCK STYLES --- */
+.message .code-block {
+    background-color: var(--code-bg-color);
+    border-radius: 8px;
+    margin: 1em 0;
+    position: relative;
+    border: 1px solid var(--border-input);
+    color: #ccc;
+    /* Default text color for code inside prism theme */
+}
+
+.code-block .code-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #3a3a3a;
+    padding: 6px 12px;
+    font-size: 0.85em;
+    color: #b0b0b0;
+    border-bottom: 1px solid var(--border-input);
+    border-top-left-radius: 7px;
+    border-top-right-radius: 7px;
+}
+
+.code-block .copy-button {
+    background-color: var(--bg-sidebar-item);
+    color: var(--text-primary);
+    border: 1px solid var(--border-input);
+    border-radius: 5px;
+    padding: 4px 10px;
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.code-block .copy-button:hover {
+    background-color: var(--bg-sidebar-hover);
+}
+
+.code-block pre {
+    margin: 0 !important;
+    /* Override prism defaults */
+    padding: 12px !important;
+    /* Override prism defaults */
+    overflow-x: auto;
+    background: transparent !important;
+    /* Let parent div control background */
+}
+
+/* Ensure prismjs line numbers play nicely with our theme */
+.line-numbers .line-numbers-rows {
+    border-right: 1px solid var(--border-input) !important;
+}
+
+/* ADD THIS NEW RULE TO YOUR style.css FILE */
+
+/* --- Subheading/Strong Text Styling --- */
+.message strong {
+    display: block;
+    /* Makes it take up its own line */
+    font-size: 1.1em;
+    /* Slightly larger font */
+    font-weight: 600;
+    /* Bolder than normal bold */
+    margin-top: 1.2em;
+    /* Space above the heading */
+    margin-bottom: 0.6em;
+    /* Space below the heading */
+    color: var(--text-primary);
+    /* Ensure it follows theme colors */
+}
+
+/* Add a rule to prevent a heading from having too much space at the very top of a message */
+.message strong:first-child {
+    margin-top: 0;
 }
